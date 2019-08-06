@@ -1,0 +1,27 @@
+<idea-plugin>
+    <id>cn.kuwo.plugin.gitSimpleReview</id>
+    <name>GitSimpleReview</name>
+    <version>1.0.0</version>
+    <idea-version since-build="171"/>
+    <vendor email="daming.chu@kuwo.cn" url="http://jx.kuwo.cn/">聚星</vendor>
+
+    <description>这是酷我内部使用插件,用于git提交的审核</description>
+
+    <depends>com.intellij.modules.lang</depends>
+    <depends>com.intellij.modules.vcs</depends>
+    <depends>Git4Idea</depends>
+    <extensions defaultExtensionNs="com.intellij">
+        <changesViewContent tabName="Commit Review" className="cn.kuwo.plugin.ui.ReviewContent"
+                            predicateClassName="cn.kuwo.plugin.ui.ReviewContent$VisibilityPredicate"/>
+    </extensions>
+
+    <actions>
+        <group id="cn.kuwo.plugin.gitSimpleReview.Toolbar">
+            <separator/>
+        </group>
+        <group id="cn.kuwo.plugin.gitSimpleReview.ListMenu">
+            <separator/>
+            <action id="cn.kuwo.plugin.copynumber" class="cn.kuwo.plugin.actions.CopyVersionNumAction"/>
+        </group>
+    </actions>
+</idea-plugin>
