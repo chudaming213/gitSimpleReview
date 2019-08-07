@@ -1,9 +1,9 @@
 <idea-plugin>
     <id>cn.kuwo.plugin.gitSimpleReview</id>
     <name>GitSimpleReview</name>
-    <version>1.0.0</version>
-    <idea-version since-build="171"/>
-    <vendor email="daming.chu@kuwo.cn" url="http://jx.kuwo.cn/">聚星</vendor>
+    <version>1.0.1</version>
+    <idea-version since-build="163"/>
+    <vendor email="daming.chu@kuwo.cn" url="http://jx.kuwo.cn/">酷我聚星</vendor>
 
     <description>这是酷我内部使用插件,用于git提交的审核</description>
 

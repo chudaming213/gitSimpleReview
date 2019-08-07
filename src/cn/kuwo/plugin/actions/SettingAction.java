@@ -8,8 +8,6 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
 
-import java.awt.*;
-
 public final class SettingAction extends AnAction {
 
     public SettingAction() {
@@ -18,21 +16,19 @@ public final class SettingAction extends AnAction {
 
     @Override
     public void actionPerformed(AnActionEvent e) {
-        showCommentDialog(e.getProject());
+        showRequestCountCountDialog(e.getProject());
     }
 
-    private void showCommentDialog(Project project) {
+    private void showRequestCountCountDialog(Project project) {
         PropertiesComponent propertiesComponent = PropertiesComponent.getInstance(project);
-        TextField textField = new TextField();
         String value = propertiesComponent.getValue(CommenUtil.REQUEST_COUNT);
-        if (value == null || value.isEmpty()) {
-            textField.setText(String.valueOf(100));
-        } else {
-            Integer integer = Integer.parseInt(value);
-            textField.setText(String.valueOf(integer));
+        int currentValue = 100;
+        if (value != null && !value.isEmpty()) {
+            currentValue = Integer.parseInt(value);
         }
-        String s = Messages.showInputDialog(textField, "Set the number of commits per time.", "Set the Number of Commits per Time.", AllIcons.General.Settings);
-        if (s != null) {
+        String s = Messages.showInputDialog(project, "Set the number of commits per time.(Current=" + currentValue + ")", "Setting", AllIcons.General.Settings);
+        if (s != null && !s.isEmpty()) {
+            s = s.trim();
             if (CommenUtil.isInteger(s)) {
                 Integer integer = Integer.parseInt(s);
                 if (integer < 10) {

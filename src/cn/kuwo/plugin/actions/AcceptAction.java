@@ -35,14 +35,14 @@ public final class AcceptAction extends AnAction {
             @Override
             public void run(@NotNull ProgressIndicator indicator) {
                 commitInfo.reviewer = GitUserRegistry.getInstance(project).getOrReadUser(project.getBaseDir()).getName();
-                String result = CommitHelper.getInstance().reviewedCommit(commitInfo);
+                String result = CommitHelper.getInstance(project).reviewedCommit(commitInfo);
                 Gson gson = new Gson();
                 Type type = new TypeToken<CommitHelper.NetData>() {
                 }.getType();
                 CommitHelper.NetData netData = gson.fromJson(result, type);
                 if (netData.code == 0) {
                     StatusBar.Info.set("Review the commit success.", project);
-                    CommitInfo commitInfo1 = gson.fromJson(netData.data, new TypeToken<CommitInfo>() {
+                    CommitInfo commitInfo1 = gson.fromJson((String) netData.data, new TypeToken<CommitInfo>() {
                     }.getType());
                     commitInfo.review_time = commitInfo1.review_time;
                     commitInfo.review_state = 1;

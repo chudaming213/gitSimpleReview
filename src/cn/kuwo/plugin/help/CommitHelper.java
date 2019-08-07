@@ -4,6 +4,7 @@ import cn.kuwo.plugin.CommenUtil;
 import cn.kuwo.plugin.bean.CommitInfo;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import com.google.gson.annotations.SerializedName;
 import com.google.gson.reflect.TypeToken;
 import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.openapi.project.Project;
@@ -17,21 +18,31 @@ import java.lang.reflect.Type;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 
 public class CommitHelper {
-    private final String baseUrl = "http://172.17.77.7:8080/githook";
-    private static CommitHelper ourInstance = new CommitHelper();
+    private final String baseUrl = "http://git.simplereview.com/githook";
+    private static CommitHelper ourInstance;
+    private Project project;
     private Type gsonTypeList;
 
-    public static CommitHelper getInstance() {
+    public static CommitHelper getInstance(Project project) {
+        if (ourInstance == null) {
+            synchronized (CommitHelper.class) {
+                if (ourInstance == null) {
+                    ourInstance = new CommitHelper(project);
+                }
+            }
+        }
         return ourInstance;
     }
 
-    private CommitHelper() {
+    private CommitHelper(Project project) {
+        this.project = project;
         gsonTypeList = new TypeToken<List<CommitInfo>>() {
         }.getType();
     }
@@ -90,15 +101,29 @@ public class CommitHelper {
         }
         String result = request(param, "get");
         Gson gson = new Gson();
-        Type type = new TypeToken<NetData>() {
+        Type type = new TypeToken<NetDataList>() {
         }.getType();
-        NetData netData = gson.fromJson(result, type);
+        NetDataList netData = gson.fromJson(result, type);
+        for (CommitInfo datum : netData.data) {
+            checkString(datum);
+        }
         if (netData.code == 0) {
-            return gson.<ArrayList<CommitInfo>>fromJson(netData.data, gsonTypeList);
+            return netData.data;
         }
         return null;
     }
 
+    /**
+     * 引号会导致问题，所以编码
+     *
+     * @param commitInfo
+     */
+    private void checkString(CommitInfo commitInfo) {
+        commitInfo.commit_msg = URLDecoder.decode(commitInfo.commit_msg);
+        commitInfo.submitter = URLDecoder.decode(commitInfo.submitter);
+        commitInfo.review_comment = URLDecoder.decode(commitInfo.review_comment);
+        commitInfo.reviewer = URLDecoder.decode(commitInfo.reviewer);
+    }
     private String request(HashMap<String, String> param, String methord) {
         int responseCode = -1;
         try {
@@ -171,9 +196,21 @@ public class CommitHelper {
         return post;
     }
 
-    public class NetData {
+    public class NetDataList {
+        @SerializedName("code")
         public int code;
-        public String data;
+        @SerializedName("data")
+        public ArrayList<CommitInfo> data;
+        @SerializedName("msg")
+        public String msg;
+    }
+
+    public class NetData {
+        @SerializedName("code")
+        public int code;
+        @SerializedName("data")
+        public Object data;
+        @SerializedName("msg")
         public String msg;
     }
 }

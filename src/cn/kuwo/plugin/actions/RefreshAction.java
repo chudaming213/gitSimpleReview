@@ -43,15 +43,20 @@ public class RefreshAction extends AnAction implements DumbAware {
                         }
                     }
                 }
-                ArrayList<CommitInfo> commits = CommitHelper.getInstance().getCommits(e.getProject());
-                indicator.setText("Success to get " + commits.size() + " commits.");
-                ApplicationManager.getApplication().invokeLater(new Runnable() {
-                    @Override
-                    public void run() {
-                        CommitListObservable.getInstance().setCommitInfos(commits);
-                    }
-                }, ModalityState.any());
-                StatusBar.Info.set("Success to get " + commits.size() + " commits.", e.getProject());
+                ArrayList<CommitInfo> commits = CommitHelper.getInstance(myProject).getCommits(e.getProject());
+                if (commits == null) {
+                    indicator.setText("fail to get commits.");
+                    StatusBar.Info.set("fail to get commits.", e.getProject());
+                } else {
+                    indicator.setText("Success to get " + commits.size() + " commits.");
+                    StatusBar.Info.set("Success to get " + commits.size() + " commits.", e.getProject());
+                    ApplicationManager.getApplication().invokeLater(new Runnable() {
+                        @Override
+                        public void run() {
+                            CommitListObservable.getInstance().setCommitInfos(commits);
+                        }
+                    }, ModalityState.any());
+                }
             }
         }.queue();
     }

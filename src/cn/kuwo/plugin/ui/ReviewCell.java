@@ -16,7 +16,7 @@ public class ReviewCell {
     public JPanel getBaseCell(CommitInfo commitInfo) {
         user.setText(commitInfo.submitter);
         time.setText(commitInfo.commit_time);
-        msg.setText(commitInfo.commit_msg);
+        msg.setText("   "+commitInfo.commit_msg);
         if (commitInfo.review_state != 0) {
             reviewinfo.setText(commitInfo.reviewer + "  " + commitInfo.review_time);
             if (commitInfo.review_comment != null && !commitInfo.review_comment.isEmpty()) {

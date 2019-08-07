@@ -5,7 +5,7 @@ import cn.kuwo.plugin.actions.*;
 import cn.kuwo.plugin.bean.CommitInfo;
 import cn.kuwo.plugin.help.CommitFilter;
 import cn.kuwo.plugin.view.CommitPanel;
-import cn.kuwo.plugin.view.SimpleChangesBrowser;
+import cn.kuwo.plugin.view.MyRepositoryChangesBrowser;
 import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.actionSystem.impl.ActionManagerImpl;
 import com.intellij.openapi.components.ServiceManager;
@@ -14,22 +14,21 @@ import com.intellij.openapi.ui.SimpleToolWindowPanel;
 import com.intellij.openapi.vcs.ProjectLevelVcsManager;
 import com.intellij.openapi.vcs.VcsException;
 import com.intellij.openapi.vcs.VcsRoot;
+import com.intellij.openapi.vcs.changes.Change;
 import com.intellij.openapi.vcs.changes.ui.ChangesBrowserBase;
 import com.intellij.openapi.vcs.changes.ui.ChangesViewContentProvider;
 import com.intellij.openapi.vcs.ui.SearchFieldAction;
+import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.ui.JBSplitter;
-import com.intellij.util.ArrayUtil;
 import com.intellij.util.Consumer;
 import com.intellij.util.NotNullFunction;
-import com.intellij.vcs.log.CommitId;
+import com.intellij.vcs.log.VcsFullCommitDetails;
+import com.intellij.vcs.log.VcsLogProvider;
+import com.intellij.vcs.log.data.VcsLogData;
 import com.intellij.vcs.log.impl.VcsLogManager;
 import com.intellij.vcs.log.impl.VcsLogTabsProperties;
-import com.intellij.vcs.log.ui.frame.CommitPresentationUtil;
-import git4idea.GitCommit;
+import com.intellij.vcs.log.ui.VcsLogColorManagerImpl;
 import git4idea.GitVcs;
-import git4idea.changes.GitChangeUtils;
-import git4idea.changes.GitCommittedChangeList;
-import git4idea.history.GitLogUtil;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
@@ -38,10 +37,8 @@ import javax.swing.event.ListSelectionListener;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.util.Arrays;
+import java.util.*;
 import java.util.List;
-import java.util.Observable;
-import java.util.Observer;
 
 public class ReviewContent implements ChangesViewContentProvider {
 
@@ -56,6 +53,7 @@ public class ReviewContent implements ChangesViewContentProvider {
     private CommitPanel commitPanel;
     private AcceptAction acceptAction;
     private CommentAction commentAction;
+    private VcsLogData vcsLogData;
 
     public ReviewContent(Project project) {
         this.project = project;
@@ -127,26 +125,30 @@ public class ReviewContent implements ChangesViewContentProvider {
                     try {
                         acceptAction.setData(selected);
                         commentAction.setData(selected);
-                        GitCommittedChangeList revisionChanges = GitChangeUtils.getRevisionChanges(project, project.getBaseDir(), selected.version_hash, true, false, false);
-                        ((SimpleChangesBrowser) changesBrowserBase).setChangesToDisplay(revisionChanges.getChanges());
                         List<VcsRoot> vcsRoots = Arrays.asList(ProjectLevelVcsManager.getInstance(project).getAllVcsRoots());
                         VcsLogManager manager = new VcsLogManager(project, ServiceManager.getService(project, VcsLogTabsProperties.class), vcsRoots);
-                        String[] heads = ArrayUtil.toStringArray(Arrays.asList("--pretty=format:%s", selected.version_hash, "-1"));
-                        GitLogUtil.readFullDetails(project, project.getBaseDir(), new Consumer<GitCommit>() {
-                            @Override
-                            public void consume(GitCommit gitCommit) {
-                                System.out.println(gitCommit);
-                                if (commitPanel == null) {
-                                    commitPanel = new CommitPanel(project, manager.getColorManager());
-                                    verticalSplitter.setSecondComponent(commitPanel);
+                        Map<VirtualFile, VcsLogProvider> logProviders = VcsLogManager.findLogProviders(vcsRoots, project);
+                        ArrayList<String> strings = new ArrayList<>();
+                        for (VirtualFile virtualFile : logProviders.keySet()) {
+                            strings.clear();
+                            strings.add(selected.version_hash);
+                            VcsLogProvider vcsLogProvider = logProviders.get(virtualFile);
+                            vcsLogProvider.readFullDetails(virtualFile, strings, new Consumer<VcsFullCommitDetails>() {
+                                @Override
+                                public void consume(VcsFullCommitDetails vcsFullCommitDetails) {
+                                    if (commitPanel == null) {
+                                        VcsLogColorManagerImpl vcsLogColorManager = new VcsLogColorManagerImpl(logProviders.keySet());
+                                        vcsLogData = manager.getDataManager();
+                                        commitPanel = new CommitPanel(vcsLogData, vcsLogColorManager);
+                                        verticalSplitter.setSecondComponent(commitPanel);
+                                    }
+                                    List<Change> changes = new ArrayList<Change>(vcsFullCommitDetails.getChanges());
+                                    ((MyRepositoryChangesBrowser) changesBrowserBase).setChangesToDisplay(changes);
+                                    commitPanel.setCommit(vcsFullCommitDetails);
+                                    commitPanel.update();
                                 }
-                                CommitId commitId = new CommitId(gitCommit.getId(), gitCommit.getRoot());
-                                CommitPresentationUtil.CommitPresentation commitPresentation = cn.kuwo.plugin.view.CommitPresentationUtil.buildPresentation(project, gitCommit);
-                                commitPanel.setCommit(commitId, commitPresentation);
-                                commitPanel.update();
-                            }
-                        }, heads);
-
+                            });
+                        }
                     } catch (VcsException e1) {
                         e1.printStackTrace();
                     }
@@ -154,7 +156,7 @@ public class ReviewContent implements ChangesViewContentProvider {
             }
         });
         horizontalSplitter.setFirstComponent(basePan);
-        changesBrowserBase = new SimpleChangesBrowser(project, false, false);
+        changesBrowserBase = new MyRepositoryChangesBrowser(project, null);
         //评论
         commentAction = new CommentAction();
         changesBrowserBase.addToolbarAction(commentAction);

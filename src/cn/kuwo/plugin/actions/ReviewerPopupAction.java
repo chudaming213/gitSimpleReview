@@ -1,5 +1,6 @@
 package cn.kuwo.plugin.actions;
 
+import cn.kuwo.plugin.CommenUtil;
 import cn.kuwo.plugin.CommitListObservable;
 import cn.kuwo.plugin.help.CommitFilter;
 import com.google.gson.Gson;
@@ -15,7 +16,6 @@ import javax.swing.*;
 import java.util.ArrayList;
 
 public final class ReviewerPopupAction extends BasePopupAction {
-    public final static String USERLIST_JSON = "cn.kuwo.plugin.userlist";
     private ArrayList<String> users;
     private Gson gson;
 
@@ -23,7 +23,7 @@ public final class ReviewerPopupAction extends BasePopupAction {
         super(filterName);
         updateFilterValueLabel("All");
         PropertiesComponent propertiesComponent = PropertiesComponent.getInstance(project);
-        String userListJson = propertiesComponent.getValue(USERLIST_JSON);
+        String userListJson = propertiesComponent.getValue(CommenUtil.USERLIST_JSON);
         if (userListJson != null && !userListJson.isEmpty()) {
             if (gson == null) {
                 gson = new Gson();
@@ -82,7 +82,7 @@ public final class ReviewerPopupAction extends BasePopupAction {
                         gson = new Gson();
                     }
                     PropertiesComponent propertiesComponent = PropertiesComponent.getInstance(e.getProject());
-                    propertiesComponent.setValue(USERLIST_JSON, gson.toJson(users));
+                    propertiesComponent.setValue(CommenUtil.USERLIST_JSON, gson.toJson(users));
                 }
             }
         };
