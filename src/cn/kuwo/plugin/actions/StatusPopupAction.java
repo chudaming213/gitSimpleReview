@@ -34,7 +34,7 @@ public final class StatusPopupAction extends BasePopupAction {
                     } else {
                         CommitFilter.getInstance().state = status.name().toLowerCase();
                     }
-                    CommitListObservable.getInstance().filt();
+                    CommitListObservable.getInstance(e.getProject()).filt();
                 }
             });
         }

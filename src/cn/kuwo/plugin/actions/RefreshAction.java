@@ -53,7 +53,7 @@ public class RefreshAction extends AnAction implements DumbAware {
                     ApplicationManager.getApplication().invokeLater(new Runnable() {
                         @Override
                         public void run() {
-                            CommitListObservable.getInstance().setCommitInfos(commits);
+                            CommitListObservable.getInstance(myProject).setCommitInfos(commits);
                         }
                     }, ModalityState.any());
                 }

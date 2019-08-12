@@ -72,12 +72,12 @@ public class ReviewContent implements ChangesViewContentProvider {
                 }
             }
         };
-        CommitListObservable.getInstance().addObserver(listDataObserver);
+        CommitListObservable.getInstance(project).addObserver(listDataObserver);
     }
 
     @Override
     public void disposeContent() {
-        CommitListObservable.getInstance().deleteObserver(listDataObserver);
+        CommitListObservable.getInstance(project).deleteObserver(listDataObserver);
     }
 
     public JComponent initContent() {
@@ -176,19 +176,22 @@ public class ReviewContent implements ChangesViewContentProvider {
             @Override
             public void actionPerformed(AnActionEvent event) {
                 CommitFilter.getInstance().searchKey = getText().trim();
-                CommitListObservable.getInstance().filt();
+                CommitListObservable.getInstance(project).filt();
             }
         };
         toolBarActionGroup.add(searchFieldAction);
 //        状态
-        StatusPopupAction branchPopupAction = new StatusPopupAction(project, "Status");
-        toolBarActionGroup.add(branchPopupAction);
+        StatusPopupAction statusPopupAction = new StatusPopupAction(project, "Status");
+        toolBarActionGroup.add(statusPopupAction);
 //        检查者
         ReviewerPopupAction reviewerPopupAction = new ReviewerPopupAction(project, "Reviewer");
         toolBarActionGroup.add(reviewerPopupAction);
 //        发起者
         OwnerPopupAction ownerPopupAction = new OwnerPopupAction(project, "Owner");
         toolBarActionGroup.add(ownerPopupAction);
+        // 分支
+        BranchPopupAction branchPopupAction = new BranchPopupAction(project, "Branch");
+        toolBarActionGroup.add(branchPopupAction);
         //分割线
         toolBarActionGroup.addSeparator();
         //日期

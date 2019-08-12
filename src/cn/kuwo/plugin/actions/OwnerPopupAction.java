@@ -38,7 +38,7 @@ public final class OwnerPopupAction extends BasePopupAction {
             public void actionPerformed(AnActionEvent e) {
                 updateFilterValueLabel("All");
                 CommitFilter.getInstance().user = "";
-                CommitListObservable.getInstance().filt();
+                CommitListObservable.getInstance(e.getProject()).filt();
             }
         });
         if (users != null) {
@@ -48,7 +48,7 @@ public final class OwnerPopupAction extends BasePopupAction {
                     public void actionPerformed(AnActionEvent e) {
                         updateFilterValueLabel(user);
                         CommitFilter.getInstance().user = user;
-                        CommitListObservable.getInstance().filt();
+                        CommitListObservable.getInstance(e.getProject()).filt();
                     }
                 });
             }
@@ -70,7 +70,7 @@ public final class OwnerPopupAction extends BasePopupAction {
                 if (!Comparing.equal(newText, getFilterValueLabel().getText())) {
                     updateFilterValueLabel(newText);
                     CommitFilter.getInstance().user = newText;
-                    CommitListObservable.getInstance().filt();
+                    CommitListObservable.getInstance(e.getProject()).filt();
                 }
                 if (users == null) {
                     users = new ArrayList<>();

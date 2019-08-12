@@ -39,7 +39,7 @@ public final class ReviewerPopupAction extends BasePopupAction {
             public void actionPerformed(AnActionEvent e) {
                 updateFilterValueLabel("All");
                 CommitFilter.getInstance().reviewer = "";
-                CommitListObservable.getInstance().filt();
+                CommitListObservable.getInstance(e.getProject()).filt();
             }
         });
         selectUserTextArea = new JTextArea();
@@ -51,7 +51,7 @@ public final class ReviewerPopupAction extends BasePopupAction {
                     public void actionPerformed(AnActionEvent e) {
                         updateFilterValueLabel(user);
                         CommitFilter.getInstance().reviewer = user;
-                        CommitListObservable.getInstance().filt();
+                        CommitListObservable.getInstance(e.getProject()).filt();
                     }
                 });
             }
@@ -71,7 +71,7 @@ public final class ReviewerPopupAction extends BasePopupAction {
                 if (!Comparing.equal(newText, getFilterValueLabel().getText())) {
                     updateFilterValueLabel(newText);
                     CommitFilter.getInstance().reviewer = newText;
-                    CommitListObservable.getInstance().filt();
+                    CommitListObservable.getInstance(e.getProject()).filt();
                     if (users == null) {
                         users = new ArrayList<>();
                     }

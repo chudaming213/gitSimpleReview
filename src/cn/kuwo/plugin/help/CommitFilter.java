@@ -17,4 +17,5 @@ public class CommitFilter {
     public String state;//reviewed //unreview
     public String reviewer;
     public String user;
+    public String branch;
 }

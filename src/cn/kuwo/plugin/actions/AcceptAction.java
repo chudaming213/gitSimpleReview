@@ -46,7 +46,7 @@ public final class AcceptAction extends AnAction {
                     }.getType());
                     commitInfo.review_time = commitInfo1.review_time;
                     commitInfo.review_state = 1;
-                    CommitListObservable.getInstance().refreshSub();
+                    CommitListObservable.getInstance(project).refreshSub();
                 } else {
                     StatusBar.Info.set("Review the commit fail." + netData.msg, project);
                 }

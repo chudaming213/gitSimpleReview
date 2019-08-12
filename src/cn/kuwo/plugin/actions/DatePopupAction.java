@@ -35,7 +35,7 @@ public final class DatePopupAction extends BasePopupAction {
                 updateFilterValueLabel("All");
                 CommitFilter.getInstance().commitStartTime = "";
                 CommitFilter.getInstance().commitEndTime = "";
-                CommitListObservable.getInstance().filt();
+                CommitListObservable.getInstance(e.getProject()).filt();
             }
         });
         selectUserTextArea = new JTextArea();
@@ -54,7 +54,7 @@ public final class DatePopupAction extends BasePopupAction {
                 updateFilterValueLabel("Since " + format);
                 CommitFilter.getInstance().commitStartTime = format.substring(2);
                 CommitFilter.getInstance().commitEndTime = "";
-                CommitListObservable.getInstance().filt();
+                CommitListObservable.getInstance(e.getProject()).filt();
             }
         });
         actionConsumer.consume(new DumbAwareAction("Last 3 days") {
@@ -65,7 +65,7 @@ public final class DatePopupAction extends BasePopupAction {
                 updateFilterValueLabel("Since " + format);
                 CommitFilter.getInstance().commitStartTime = format.substring(2);
                 CommitFilter.getInstance().commitEndTime = "";
-                CommitListObservable.getInstance().filt();
+                CommitListObservable.getInstance(e.getProject()).filt();
             }
         });
         actionConsumer.consume(new DumbAwareAction("Last 7 days") {
@@ -76,7 +76,7 @@ public final class DatePopupAction extends BasePopupAction {
                 updateFilterValueLabel("Since " + format);
                 CommitFilter.getInstance().commitStartTime = format.substring(2);
                 CommitFilter.getInstance().commitEndTime = "";
-                CommitListObservable.getInstance().filt();
+                CommitListObservable.getInstance(e.getProject()).filt();
             }
         });
         actionConsumer.consume(new DumbAwareAction("Select...") {
@@ -123,7 +123,7 @@ public final class DatePopupAction extends BasePopupAction {
                         dateFilte += dateBeforeStr;
                     }
                     updateFilterValueLabel(dateFilte);
-                    CommitListObservable.getInstance().filt();
+                    CommitListObservable.getInstance(e.getProject()).filt();
                 }
             }
         });
@@ -140,7 +140,7 @@ public final class DatePopupAction extends BasePopupAction {
                 if (!Comparing.equal(newText, getFilterValueLabel().getText())) {
                     updateFilterValueLabel(newText);
                     CommitFilter.getInstance().user = newText;
-                    CommitListObservable.getInstance().filt();
+                    CommitListObservable.getInstance(e.getProject()).filt();
                 }
             }
         };

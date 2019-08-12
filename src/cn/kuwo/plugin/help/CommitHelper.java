@@ -119,11 +119,12 @@ public class CommitHelper {
      * @param commitInfo
      */
     private void checkString(CommitInfo commitInfo) {
-        commitInfo.commit_msg = URLDecoder.decode(commitInfo.commit_msg);
+        commitInfo.commit_msg = URLDecoder.decode(URLDecoder.decode(commitInfo.commit_msg));
         commitInfo.submitter = URLDecoder.decode(commitInfo.submitter);
         commitInfo.review_comment = URLDecoder.decode(commitInfo.review_comment);
         commitInfo.reviewer = URLDecoder.decode(commitInfo.reviewer);
     }
+
     private String request(HashMap<String, String> param, String methord) {
         int responseCode = -1;
         try {
